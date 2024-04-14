@@ -1,7 +1,11 @@
 -- 知识图谱数据库
-create database museum_knowledge_graph;
+create
+database museum_knowledge_graph;
 
-use museum_knowledge_graph;
+# use
+# museum_knowledge_graph;
+#
+# drop table museum_items_of_china;
 
 create table museum_items_of_china
 (
@@ -12,7 +16,7 @@ create table museum_items_of_china
     material      varchar(255) comment '材质',
     size          varchar(255) comment '尺寸',
     description   text comment '介绍',
-    url           varchar(255) comment '详情页面的URL',
+    detail_url    varchar(255) comment '详情页面的URL',
     image         varchar(255) comment '文物图片' unique,
     download_link varchar(255) comment '原图下载链接',
     index (museum),

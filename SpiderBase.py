@@ -2,12 +2,14 @@ import requests
 
 
 class SpiderBase:
+    @property
+    def is_debug(self):
+        return True
 
     def req_post(self, url, params):
         return requests.post(url, json=params, headers=self.headers)
 
     def req_get(self, url, params=None):
-        requests.get
         return requests.get(url, data=params, headers=self.headers)
 
     @property
