@@ -3,7 +3,7 @@ DEBUG = True
 
 
 class MySQLConfig:
-    host = '59.110.155.175'
+    host = 'ip'
     port = 3306
     user = 'mysql'
     password = '123456'
