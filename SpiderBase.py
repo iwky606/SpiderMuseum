@@ -1,6 +1,7 @@
 import requests
 import pymysql
 
+import config
 from config import MySQLConfig
 
 
@@ -25,8 +26,8 @@ class SpiderBase:
         }
 
     def save_to_mysql(self, items):
-        sql = '''
-        INSERT INTO museum_items_of_china
+        sql = f'''
+        INSERT INTO f{'museum_items_of_china' if not config.DEBUG else 'test_museum_crawl'}
         (museum, title, era, material, size, description, detail_url, image, download_link)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         '''
