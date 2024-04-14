@@ -1,14 +1,16 @@
 import requests
 import pymysql
 
+from config import MySQLConfig
+
+
 class SpiderBase:
     def __init__(self):
-        # pymysql.connect('')
-        pass
-
-    @property
-    def is_debug(self):
-        return True
+        self.db = pymysql.connect(
+            host=MySQLConfig.host, port=MySQLConfig.port, user=MySQLConfig.user, password=MySQLConfig.password,
+            database=MySQLConfig.database, charset='utf8'
+        )
+        self.cursor = self.db.cursor()
 
     def req_post(self, url, params):
         return requests.post(url, json=params, headers=self.headers)
@@ -23,4 +25,10 @@ class SpiderBase:
         }
 
     def save_to_mysql(self, items):
-        pass
+        sql = '''
+        INSERT INTO museum_items_of_china
+        (museum, title, era, material, size, description, detail_url, image, download_link)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        '''
+        self.cursor.executemany(sql, items)
+        self.db.commit()
