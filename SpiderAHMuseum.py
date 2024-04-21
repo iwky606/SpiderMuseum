@@ -9,7 +9,7 @@ from lxml import etree
 class SpiderNjMuseum(SpiderBase):
 
     def fetch_item(self):
-        page = 409 if not self.debug else 93
+        page = 1 if not self.debug else 93
         cnt = 0
         while True:
             try:
