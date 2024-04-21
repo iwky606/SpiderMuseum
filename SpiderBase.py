@@ -98,23 +98,42 @@ class SpiderBase:
         resp = self.qcloud_client.TextTranslateBatch(req)
         return resp.TargetTextList
 
-    def translate_item(self, item):
-        texts = []
-        for key in item.keys():
-            if key not in self.need_translate:
-                continue
-            texts.append(str(item[key]))
-        res = self.batch_translate(texts, 'de', 'zh') if texts else None
-        index = 0
-        for key in item.keys():
-            if key not in self.need_translate:
-                continue
-            item[key] = res[index] if item[key] else None
-            index += 1
+    def translate_item(self, source, item):
+        try:
+            texts = []
+            for key in item.keys():
+                if key not in self.need_translate:
+                    continue
+                texts.append(str(item[key]))
+            res = self.batch_translate(texts, source, 'zh') if texts else None
+            index = 0
+            for key in item.keys():
+                if key not in self.need_translate:
+                    continue
+                item[key] = res[index] if item[key] else None
+                index += 1
+        except Exception:
+            print(item)
+            texts = []
+            for key in item.keys():
+                if key not in self.need_translate or key == 'description':
+                    continue
+                texts.append(str(item[key]))
+            res = self.batch_translate(texts, 'de', 'zh') if texts else None
+
+            index = 0
+            for key in item.keys():
+                if key not in self.need_translate or key == 'description':
+                    continue
+                item[key] = res[index] if item[key] else None
+                index += 1
+
+            res = self.batch_translate([item['description'][:5000]], 'de', 'zh') if texts else None
+            item['description'] = res[0]
 
     @property
     def need_translate(self):
-        return ['title', 'ear', 'material', 'description' 'size', 'geo']
+        return ['title', 'ear', 'material', 'description', 'size', 'geo']
 
 
 if __name__ == "__main__":

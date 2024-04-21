@@ -8,8 +8,8 @@ class SpiderSMBMuseum(SpiderBase):
         return f'https://api.smb.museum/search/?lang=de&limit={limit}&offset={offset}&sort=-_score%2C-attachments%2C-%40lastSynced'
 
     def fetch_item(self):
-        page = 1
-        page_size = 50 if not self.debug else 3
+        page = 1 if not self.debug else 28
+        page_size = 50 if not self.debug else 50
         cnt = 0
         while True:
             items = self.req_post(url=self.api_url((page - 1) * page_size, page_size), json={
@@ -57,7 +57,7 @@ class SpiderSMBMuseum(SpiderBase):
                 'download_link': image_url,
                 'geo': self.get_geo(item)
             }
-            self.translate_item(parsed_item)
+            self.translate_item('de',parsed_item)
             parsed_items.append(parsed_item)
 
         db_items = []
