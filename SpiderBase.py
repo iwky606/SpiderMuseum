@@ -12,7 +12,6 @@ from config import MySQLConfig
 
 
 class SpiderBase:
-    _tmt_client = None
 
     def __init__(self):
         self.db = pymysql.connect(
@@ -20,6 +19,7 @@ class SpiderBase:
             database=MySQLConfig.database, charset='utf8'
         )
         self.cursor = self.db.cursor()
+        self._tmt_client = None
 
     def req_post(self, url, params):
         return requests.post(url, json=params, headers=self.headers)
@@ -36,16 +36,16 @@ class SpiderBase:
     def save_to_mysql(self, items):
         sql = f'''
         INSERT INTO {'museum_items_of_china' if not config.DEBUG else 'test_museum_crawl'}
-        (museum, title, era, material, size, description, detail_url, image, download_link)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        (museum, title, era, material, size, description, detail_url, image, download_link, geo)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         '''
         self.cursor.executemany(sql, items)
         self.db.commit()
 
     @property
     def qcloud_client(self):
-        if tmt_client:
-            return tmt_client
+        if self._tmt_client:
+            return self._tmt_client
         cred = credential.Credential(config.TencentSecretKey.secretId, config.TencentSecretKey.secretKey)
         http_profile = HttpProfile()
         http_profile.endpoint = "tmt.tencentcloudapi.com"
@@ -53,20 +53,18 @@ class SpiderBase:
         client_profile = ClientProfile()
         client_profile.httpProfile = http_profile
 
-        client = tmt_client.TmtClient(cred, "ap-beijing", client_profile)
-        return client
+        self._tmt_client = tmt_client.TmtClient(cred, "ap-beijing", client_profile)
+        return self._tmt_client
 
-    def batch_translate(self):
+    def batch_translate(self, texts, source, target):
         req = models.TextTranslateBatchRequest()
         params = {
-            "Source": "de",
-            "Target": "zh",
+            "Source": source,
+            "Target": target,
             "ProjectId": 0,
-            "SourceTextList": [
-                '''              ''',
-            ]
+            "SourceTextList": texts
         }
         req.from_json_string(json.dumps(params))
 
-        resp = self.qcloud_client.TmtClient.TextTranslateBatch(req)
+        resp = self.qcloud_client.TextTranslateBatch(req)
         return resp.TargetTextList
