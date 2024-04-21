@@ -23,9 +23,8 @@ create table museum_items_of_china_v2
     index (era)
 );
 
-select count(*)
-from museum_items_of_china;
-#
-# create user 'all_privileges_a'@'%' identified by '123456';
-# grant all privileges on museum_knowledge_graph.* to 'all_privileges_a'@'%';
-# REVOKE ALL PRIVILEGES ON museum_knowledge_graph.* FROM 'all_privileges'@'%';
+# select count(*)
+# from museum_items_of_china_v2
+# where museum = 'njmuseum';
+
+grant select,update,insert,alter on museum_knowledge_graph.museum_items_of_china_v2 to 'museum_knowledge_graph'@'%';
