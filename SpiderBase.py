@@ -1,3 +1,5 @@
+import sys
+
 import requests
 import pymysql
 
@@ -33,9 +35,15 @@ class SpiderBase:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'
         }
 
+    @property
+    def debug(self):
+        if len(sys.argv) > 1:
+            return sys.argv[1] != '1'
+        return config.DEBUG
+
     def save_to_mysql(self, items):
         sql = f'''
-        INSERT INTO {'museum_items_of_china' if not config.DEBUG else 'test_museum_crawl'}
+        INSERT INTO {'museum_items_of_china_v2' if not self.debug else 'test_museum_crawl'}
         (museum, title, era, material, size, description, detail_url, image, download_link, geo)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         '''
@@ -68,3 +76,7 @@ class SpiderBase:
 
         resp = self.qcloud_client.TextTranslateBatch(req)
         return resp.TargetTextList
+
+if __name__=="__main__":
+    t=SpiderBase()
+    print(t.debug)

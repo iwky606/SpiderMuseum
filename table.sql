@@ -1,11 +1,11 @@
 -- 知识图谱数据库
 create
-database museum_knowledge_graph;
+    database museum_knowledge_graph;
 
 use museum_knowledge_graph;
 
 
-create table museum_items_of_china
+create table museum_items_of_china_v2
 (
     id            int primary key auto_increment,
     museum        varchar(255),
@@ -17,12 +17,14 @@ create table museum_items_of_china
     detail_url    varchar(255) comment '详情页面的URL',
     image         varchar(255) comment '文物图片',
     download_link varchar(255) comment '原图下载链接',
+    geo           varchar(255) comment '地理位置',
     index (museum),
     index (title),
     index (era)
 );
 
-select count(*) from museum_items_of_china;
+select count(*)
+from museum_items_of_china;
 #
 # create user 'all_privileges_a'@'%' identified by '123456';
 # grant all privileges on museum_knowledge_graph.* to 'all_privileges_a'@'%';

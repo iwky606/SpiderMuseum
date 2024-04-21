@@ -1,6 +1,6 @@
 {
   "code": 0,
-  "count": 12,
+  "count": 10,
   "data": {
     "list": [
       {
@@ -210,48 +210,6 @@
         "position": "",
         "reignTitle": "",
         "size": "纵1.5，横2.4 厘米",
-        "title": "商甲骨刻辞",
-        "wenchuangs": []
-      },
-      {
-        "categoryName": "文献",
-        "describe": "商",
-        "exhibitLink": "",
-        "exhibitSource": "",
-        "exhibitionHallName": "",
-        "exhibitions": [],
-        "id": 13273,
-        "imgSrc": [
-          "/files/nb/collection/modify/2021/09/28\\5：3429-B-01.jpg"
-        ],
-        "outExhibits": 0,
-        "pavilionId": 0,
-        "pavilionName": "",
-        "pivot": "",
-        "position": "",
-        "reignTitle": "",
-        "size": "纵2.6，横2.1 厘米",
-        "title": "商甲骨刻辞",
-        "wenchuangs": []
-      },
-      {
-        "categoryName": "文献",
-        "describe": "商",
-        "exhibitLink": "",
-        "exhibitSource": "",
-        "exhibitionHallName": "",
-        "exhibitions": [],
-        "id": 13274,
-        "imgSrc": [
-          "/files/nb/collection/modify/2021/09/28\\5：3430-B-01.jpg"
-        ],
-        "outExhibits": 0,
-        "pavilionId": 0,
-        "pavilionName": "",
-        "pivot": "",
-        "position": "",
-        "reignTitle": "",
-        "size": "纵2，横1.8 厘米",
         "title": "商甲骨刻辞",
         "wenchuangs": []
       }

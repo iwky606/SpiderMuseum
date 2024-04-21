@@ -11,7 +11,7 @@ class SpiderSMBMuseum(SpiderBase):
 
     def fetch_item(self):
         page = 1
-        page_size = 50 if not config.DEBUG else 3
+        page_size = 50 if not self.debug else 3
         cnt = 0
         while True:
             items = self.req_post(url=self.api_url((page - 1) * page_size, page_size), params={
@@ -25,7 +25,7 @@ class SpiderSMBMuseum(SpiderBase):
             print(f'处理完{cnt}条数据，总共{total}')
             if page_size * page >= total:
                 break
-            if config.DEBUG and page > 2:
+            if self.debug and page > 2:
                 break
             page += 1
 
