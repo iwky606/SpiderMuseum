@@ -8,3 +8,8 @@ class MySQLConfig:
     user = 'mysql'
     password = '123456'
     database = 'museum_knowledge_graph'
+
+
+class TencentSecretKey:
+    secretId = 'AKIDxxxx'
+    secretKey = 'xxxx'
