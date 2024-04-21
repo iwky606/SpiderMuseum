@@ -1,11 +1,19 @@
 import requests
 import pymysql
 
+import json
+from tencentcloud.common import credential
+from tencentcloud.common.profile.client_profile import ClientProfile
+from tencentcloud.common.profile.http_profile import HttpProfile
+from tencentcloud.tmt.v20180321 import tmt_client, models
+
 import config
 from config import MySQLConfig
 
 
 class SpiderBase:
+    _tmt_client = None
+
     def __init__(self):
         self.db = pymysql.connect(
             host=MySQLConfig.host, port=MySQLConfig.port, user=MySQLConfig.user, password=MySQLConfig.password,
@@ -34,11 +42,31 @@ class SpiderBase:
         self.cursor.executemany(sql, items)
         self.db.commit()
 
-    def google_translate(self, text, source_lang, target_lang):
-        url = f'https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl={source_lang}&tl={target_lang}&q={text}'
-        res = requests.get(url).json()
-        return res[0][0][0]
+    @property
+    def qcloud_client(self):
+        if tmt_client:
+            return tmt_client
+        cred = credential.Credential(config.TencentSecretKey.secretId, config.TencentSecretKey.secretKey)
+        http_profile = HttpProfile()
+        http_profile.endpoint = "tmt.tencentcloudapi.com"
 
-    def batch_google_translate(self, texts, source_lang, target_lang):
+        client_profile = ClientProfile()
+        client_profile.httpProfile = http_profile
 
-        pass
+        client = tmt_client.TmtClient(cred, "ap-beijing", client_profile)
+        return client
+
+    def batch_translate(self):
+        req = models.TextTranslateBatchRequest()
+        params = {
+            "Source": "de",
+            "Target": "zh",
+            "ProjectId": 0,
+            "SourceTextList": [
+                '''              ''',
+            ]
+        }
+        req.from_json_string(json.dumps(params))
+
+        resp = self.qcloud_client.TmtClient.TextTranslateBatch(req)
+        return resp.TargetTextList
