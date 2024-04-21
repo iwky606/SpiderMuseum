@@ -2,9 +2,8 @@
 create
 database museum_knowledge_graph;
 
-# use museum_knowledge_graph;
+use museum_knowledge_graph;
 
-drop table museum_items_of_china;
 
 create table museum_items_of_china
 (
@@ -24,3 +23,7 @@ create table museum_items_of_china
 );
 
 select count(*) from museum_items_of_china;
+#
+# create user 'all_privileges_a'@'%' identified by '123456';
+# grant all privileges on museum_knowledge_graph.* to 'all_privileges_a'@'%';
+# REVOKE ALL PRIVILEGES ON museum_knowledge_graph.* FROM 'all_privileges'@'%';

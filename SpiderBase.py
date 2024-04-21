@@ -27,9 +27,18 @@ class SpiderBase:
 
     def save_to_mysql(self, items):
         sql = f'''
-        INSERT INTO f{'museum_items_of_china' if not config.DEBUG else 'test_museum_crawl'}
+        INSERT INTO {'museum_items_of_china' if not config.DEBUG else 'test_museum_crawl'}
         (museum, title, era, material, size, description, detail_url, image, download_link)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         '''
         self.cursor.executemany(sql, items)
         self.db.commit()
+
+    def google_translate(self, text, source_lang, target_lang):
+        url = f'https://translate.googleapis.com/translate_a/single?client=gtx&dt=t&sl={source_lang}&tl={target_lang}&q={text}'
+        res = requests.get(url).json()
+        return res[0][0][0]
+
+    def batch_google_translate(self, texts, source_lang, target_lang):
+
+        pass

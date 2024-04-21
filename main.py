@@ -1,12 +1,35 @@
-t = {'id': 214912, '@id': '214912', '@initialImport': '2023-03-22T19:45:22.519876+00:00',
-     '@lastSynced': '2024-03-25T08:50:03.791532+00:00', 'assets': [], 'attachments': False,
-     'collection': 'Ethnologisches Museum', 'collectionKey': 'EMAfrika1', 'compilation': 'Afrika',
-     'dateRange': 'Von 01.01.1501 n. Chr. bis 31.12.1700 n. Chr.', 'dating': ['16 -17. Jahrundert'],
-     'description': 'Historischer Hauptkatalog: „Porcellan, chinesisch, anscheinend ganz rohe Exportware vielleicht des 13.-16. Jahrh., rot und grün bemalt. Von einem Yumbengrab bei Dar-es-Salam.“\r\n\r\nForm: Leicht aufgewölbter Boden mit Standring, aufgewölbter Rand\r\nFarbe: Rot auf weiß\r\nErhaltungszustand: Zusammengeklebt. Kleine Fragmente fehlen.',
-     'dimensionsAndWeight': ['Objektmaß: 3,5 x 18,3 x 19 cm'], 'exhibit': False,
-     'geographicalReferences': ['Tansania (Land/Region)',
-                                'Daressalam (Dar-es-Salaam) (Daressalam (Dar-es-Salam)) (Land/Region)',
-                                'Herstellungsort: China (Land/Region)'], 'highlight': False,
-     'identNumber': 'III E 4142', 'involvedParties': ['Franz Stuhlmann (29.10.1863 - 19.11.1928), Sammler*in'],
-     'materialAndTechnique': ['Porzellan'], 'technicalTerm': 'Teller (Grabbeigabe)',
-     'permalink': 'https://id.smb.museum/object/214912/teller-grabbeigabe'}
+import json
+from tencentcloud.common import credential
+from tencentcloud.common.profile.client_profile import ClientProfile
+from tencentcloud.common.profile.http_profile import HttpProfile
+from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
+from tencentcloud.tmt.v20180321 import tmt_client, models
+
+if __name__ == "__main__":
+    try:
+        cred = credential.Credential("", "")
+        httpProfile = HttpProfile()
+        httpProfile.endpoint = "tmt.tencentcloudapi.com"
+
+        clientProfile = ClientProfile()
+        clientProfile.httpProfile = httpProfile
+
+        client = tmt_client.TmtClient(cred, "ap-beijing", clientProfile)
+
+        req = models.TextTranslateBatchRequest()
+        params = {
+            "Source": "de",
+            "Target": "zh",
+            "ProjectId": 0,
+            "SourceTextList": [
+                '''              ''',
+            ]
+        }
+        req.from_json_string(json.dumps(params))
+
+        resp = client.TextTranslateBatch(req)
+
+        print(resp.to_json_string())
+
+    except TencentCloudSDKException as err:
+        print(err)

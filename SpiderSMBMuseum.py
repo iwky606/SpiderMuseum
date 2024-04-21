@@ -10,7 +10,7 @@ class SpiderSMBMuseum(SpiderBase):
 
     def fetch_item(self):
         page = 1
-        page_size = 50
+        page_size = 50 if not config.DEBUG else 3
         cnt = 0
         while True:
             items = self.req_post(url=self.api_url((page - 1) * page_size, page_size), params={
@@ -46,9 +46,16 @@ class SpiderSMBMuseum(SpiderBase):
                 'download_link': image_url,
             }
 
+            print(parsed_item)
+            for key in parsed_item.keys():
+                if key not in ['title', 'ear', 'material', 'size', 'description']:
+                    continue
+                value = parsed_item[key]
+                parsed_item[key] = self.google_translate(value, 'de', 'zh-CN') if value else None
+            print(parsed_item)
             parsed_items.append(tuple(parsed_item.values()))
-        self.save_to_mysql(parsed_items)
-        # print(parsed_items)
+
+        # self.save_to_mysql(parsed_items)
 
 
 if __name__ == '__main__':
