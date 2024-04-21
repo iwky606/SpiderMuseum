@@ -8,9 +8,29 @@ from tencentcloud.common import credential
 from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.tmt.v20180321 import tmt_client, models
-
+import time
 import config
 from config import MySQLConfig
+
+
+def rate_limited(max_per_second):
+    min_interval = 1.0 / float(max_per_second)
+
+    def decorate(func):
+        last_time_called = [0.0]
+
+        def rate_limited_function(*args, **kwargs):
+            elapsed = time.perf_counter() - last_time_called[0]
+            left_to_wait = min_interval - elapsed
+            if left_to_wait > 0:
+                time.sleep(left_to_wait)
+            ret = func(*args, **kwargs)
+            last_time_called[0] = time.perf_counter()
+            return ret
+
+        return rate_limited_function
+
+    return decorate
 
 
 class SpiderBase:
@@ -23,8 +43,8 @@ class SpiderBase:
         self.cursor = self.db.cursor()
         self._tmt_client = None
 
-    def req_post(self, url, params):
-        return requests.post(url, json=params, headers=self.headers)
+    def req_post(self, url, json=None, params=None):
+        return requests.post(url, json=json, params=params, headers=self.headers)
 
     def req_get(self, url, params=None):
         return requests.get(url, data=params, headers=self.headers)
@@ -64,6 +84,7 @@ class SpiderBase:
         self._tmt_client = tmt_client.TmtClient(cred, "ap-beijing", client_profile)
         return self._tmt_client
 
+    @rate_limited(5)
     def batch_translate(self, texts, source, target):
         req = models.TextTranslateBatchRequest()
         params = {
@@ -77,6 +98,25 @@ class SpiderBase:
         resp = self.qcloud_client.TextTranslateBatch(req)
         return resp.TargetTextList
 
-if __name__=="__main__":
-    t=SpiderBase()
+    def translate_item(self, item):
+        texts = []
+        for key in item.keys():
+            if key not in self.need_translate:
+                continue
+            texts.append(str(item[key]))
+        res = self.batch_translate(texts, 'de', 'zh') if texts else None
+        index = 0
+        for key in item.keys():
+            if key not in self.need_translate:
+                continue
+            item[key] = res[index] if item[key] else None
+            index += 1
+
+    @property
+    def need_translate(self):
+        return ['title', 'ear', 'material', 'description' 'size', 'geo']
+
+
+if __name__ == "__main__":
+    t = SpiderBase()
     print(t.debug)

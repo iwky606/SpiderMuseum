@@ -1,7 +1,5 @@
 # Berlin
-import config
 from SpiderBase import SpiderBase
-import re
 
 
 class SpiderSMBMuseum(SpiderBase):
@@ -14,7 +12,7 @@ class SpiderSMBMuseum(SpiderBase):
         page_size = 50 if not self.debug else 3
         cnt = 0
         while True:
-            items = self.req_post(url=self.api_url((page - 1) * page_size, page_size), params={
+            items = self.req_post(url=self.api_url((page - 1) * page_size, page_size), json={
                 "q_advanced": [{"field": "geographicalReferences", "operator": "AND", "q": "China"}]
             })
             result = items.json()
@@ -29,18 +27,16 @@ class SpiderSMBMuseum(SpiderBase):
                 break
             page += 1
 
-    def get_geo(self, id):
-        res = self.req_get(url=f"https://api.smb.museum/search/{id}/?projection=full").json()
-        res = dict(res)
-        if not 'geographicalReferences' in res:
+    def get_geo(self, item):
+        if 'geographicalReferences' not in item:
             return None
-        geos = res['geographicalReferences']
-        item = []
+        geos = item['geographicalReferences']
+        res = []
         for i in geos:
             if not 'location' in i:
                 continue
-            item.append(i['location'])
-        return ','.join(item)
+            res.append(i['location'])
+        return ','.join(res)
 
     def parse_item(self, items):
 
@@ -59,29 +55,15 @@ class SpiderSMBMuseum(SpiderBase):
                 'detail_url': item.get('permalink', None),
                 'image': image_url,
                 'download_link': image_url,
-                'geo': self.get_geo(item['id'])
+                'geo': self.get_geo(item)
             }
+            self.translate_item(parsed_item)
+            parsed_items.append(parsed_item)
 
-            texts = []
-            for key in parsed_item.keys():
-                if key not in self.need_translate:
-                    continue
-                texts.append(str(parsed_item[key]))
-
-            res = self.batch_translate(texts, 'de', 'zh') if texts else None
-            index = 0
-            for key in parsed_item.keys():
-                if key not in self.need_translate:
-                    continue
-                parsed_item[key] = res[index] if parsed_item[key] else None
-                index += 1
-            parsed_items.append(tuple(parsed_item.values()))
-
-        self.save_to_mysql(parsed_items)
-
-    @property
-    def need_translate(self):
-        return ['title', 'ear', 'material', 'size', 'description', 'geo']
+        db_items = []
+        for item in parsed_items:
+            db_items.append(tuple(item.values()))
+        self.save_to_mysql(db_items)
 
 
 if __name__ == '__main__':
