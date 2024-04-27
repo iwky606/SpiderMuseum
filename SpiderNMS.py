@@ -13,7 +13,7 @@ class SpiderNMS(SpiderBase):
 
     def fetch_item(self):
         cnt = 0
-        go_page = 153
+        go_page = 154
         with sync_playwright() as p:
             # browser = p.chromium.launch_persistent_context('~/Library/Application Support/Google/Chrome/Default',
             #                                                headless=True)
@@ -55,6 +55,8 @@ class SpiderNMS(SpiderBase):
                 max_page = int(max_page)
                 print(f'处理完{cnt}页，共{max_page}页')
                 if cnt >= max_page:
+                    break
+                if len(items) <16:
                     break
 
                 page.click("#btnSearchNext")
