@@ -35,7 +35,7 @@ class SpiderNMS(SpiderBase):
                 tree = etree.HTML(page.content())
 
                 rows = tree.xpath('//*[@id="SiteMain"]/div/div[2]/div/div[2]/div[*]')
-
+                page.wait_for_event("load")
                 items = []
                 for row in rows:
                     detail_url = 'https://www.nms.ac.uk' + row.xpath('.//a/@href')[0]
@@ -53,11 +53,9 @@ class SpiderNMS(SpiderBase):
 
                 self.parse_items(items)
                 cnt += 1
-                max_page = tree.xpath('//*[@id="resultsAltPagination"]/span[2]/text()')[0]
-                max_page = int(max_page)
-                print(f'处理完{cnt}页，共{max_page}页')
-                if cnt >= max_page:
-                    break
+                # max_page = tree.xpath('//*[@id="resultsAltPagination"]/span[2]/text()')[0]
+                # max_page = int(max_page)
+                print(f'处理完{cnt}页')
                 if len(items) < 16:
                     break
 
