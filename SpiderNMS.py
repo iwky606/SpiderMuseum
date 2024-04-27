@@ -111,4 +111,5 @@ class SpiderNMS(SpiderBase):
 
 if __name__ == '__main__':
     spider = SpiderNMS()
+    print(f"当前是debugmode:{spider.debug}")
     spider.fetch_item()
