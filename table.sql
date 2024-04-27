@@ -29,3 +29,7 @@ create table museum_items_of_china_v2
 
 # grant select,update,insert,alter on museum_knowledge_graph.museum_items_of_china_v2 to 'museum_knowledge_graph'@'%';
 select count(*) from museum_items_of_china_v2 where museum='National Museum of Scotland';
+
+show tables;
+
+select current_user()
