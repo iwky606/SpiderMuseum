@@ -60,7 +60,7 @@ class SpiderBase:
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.78 Safari/537.36 OPR/47.0.2631.39'
         ]
         import random
-        return random.choice(user_agents)
+        return {"User-Agent": random.choice(user_agents)}
 
     @property
     def debug(self):
