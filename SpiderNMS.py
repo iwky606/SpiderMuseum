@@ -17,7 +17,9 @@ class SpiderNMS(SpiderBase):
         with sync_playwright() as p:
             # browser = p.chromium.launch_persistent_context('~/Library/Application Support/Google/Chrome/Default',
             #                                                headless=True)
-            browser = p.chromium.launch(headless=not self.debug)
+            browser = p.chromium.launch(headless=True)
+            context = browser.new_context()
+            context.set_default_timeout(30000)
             page = browser.new_page()
             page.set_extra_http_headers(self.headers)
             page.goto("https://www.nms.ac.uk/explore-our-collections/collection-search-results/")
