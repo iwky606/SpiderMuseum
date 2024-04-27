@@ -62,6 +62,7 @@ class SpiderBase:
         return config.DEBUG
 
     def save_to_mysql(self, items):
+        print("写入数据库")
         sql = f'''
         INSERT INTO {'museum_items_of_china_v2' if not self.debug else 'test_museum_crawl'}
         (museum, title, era, material, size, description, detail_url, image, download_link, geo)

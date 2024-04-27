@@ -13,7 +13,7 @@ class SpiderNMS(SpiderBase):
 
     def fetch_item(self):
         cnt = 0
-        go_page = 68
+        go_page = 153
         with sync_playwright() as p:
             # browser = p.chromium.launch_persistent_context('~/Library/Application Support/Google/Chrome/Default',
             #                                                headless=True)

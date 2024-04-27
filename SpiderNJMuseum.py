@@ -47,7 +47,6 @@ class SpiderNjMuseum(SpiderBase):
                 'geo': '中国',
             }
             parsed_items.append(parsed_item)
-
         db_items = []
         for item in parsed_items:
             db_items.append(tuple(item.values()))
