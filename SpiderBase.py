@@ -64,9 +64,10 @@ class SpiderBase:
 
     @property
     def debug(self):
-        if len(sys.argv) > 1:
-            return sys.argv[1] != '1'
-        return config.DEBUG
+        for i in sys.argv:
+            if i == '1':
+                return False
+        return True
 
     def save_to_mysql(self, items):
         print("写入数据库")

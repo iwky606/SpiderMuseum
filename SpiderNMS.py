@@ -13,7 +13,7 @@ class SpiderNMS(SpiderBase):
 
     def fetch_item(self):
         cnt = 0
-        go_page = 154
+        go_page = 156
         with sync_playwright() as p:
             # browser = p.chromium.launch_persistent_context('~/Library/Application Support/Google/Chrome/Default',
             #                                                headless=True)
@@ -35,7 +35,7 @@ class SpiderNMS(SpiderBase):
                 tree = etree.HTML(page.content())
 
                 rows = tree.xpath('//*[@id="SiteMain"]/div/div[2]/div/div[2]/div[*]')
-                page.wait_for_event("load")
+                # page.wait_for_event("load")
                 items = []
                 for row in rows:
                     detail_url = 'https://www.nms.ac.uk' + row.xpath('.//a/@href')[0]
@@ -83,12 +83,19 @@ class SpiderNMS(SpiderBase):
                         'download_link': img_url,
                         'geo': "中国"
                     }
-                    for row in rows:
-                        text = row.text
-                        if text == 'Description':
-                            parsed_item['description'] = row.xpath('following-sibling::p/text()')[0]
-                        if text == 'Physical description':
-                            parsed_item['material'] = row.xpath('following-sibling::p/text()')[0]
+                    try:
+                        for row in rows:
+                            text = row.text
+                            if text == 'Description':
+                                parsed_item['description'] = row.xpath('following-sibling::p/text()')[0]
+                            if text == 'Physical description':
+                                parsed_item['material'] = row.xpath('following-sibling::p/text()')[0]
+                            if text == 'Style / Culture':
+                                parsed_item['ear'] = row.xpath('following-sibling::p/text()')[0]
+                            if text == 'Materials':
+                                parsed_item['material'] = row.xpath('following-sibling::p/text()')[0]
+                    except Exception:
+                        pass
                     self.translate_item('en', parsed_item)
                     parsed_items.append(parsed_item)
                     break
