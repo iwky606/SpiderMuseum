@@ -23,9 +23,11 @@ class SpiderNMS(SpiderBase):
             page = browser.new_page()
             page.set_extra_http_headers(self.headers)
             page.goto("https://www.nms.ac.uk/explore-our-collections/collection-search-results/")
+            page.wait_for_selector("#searchTerm")
             page.fill('input[name="searchTerm"]', 'china')
             page.click('#btnCollectionsSearch')
             if go_page:
+                page.wait_for_selector("#page")
                 page.fill('input[name="page"]', str(go_page))
                 page.press("#page", 'Enter')
 
@@ -56,7 +58,7 @@ class SpiderNMS(SpiderBase):
                 print(f'处理完{cnt}页，共{max_page}页')
                 if cnt >= max_page:
                     break
-                if len(items) <16:
+                if len(items) < 16:
                     break
 
                 page.click("#btnSearchNext")
