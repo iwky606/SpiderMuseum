@@ -27,4 +27,5 @@ create table museum_items_of_china_v2
 # from museum_items_of_china_v2
 # where museum = 'njmuseum';
 
-grant select,update,insert,alter on museum_knowledge_graph.museum_items_of_china_v2 to 'museum_knowledge_graph'@'%';
+# grant select,update,insert,alter on museum_knowledge_graph.museum_items_of_china_v2 to 'museum_knowledge_graph'@'%';
+select count(*) from museum_items_of_china_v2 where museum='National Museum of Scotland';

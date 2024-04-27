@@ -1,6 +1,5 @@
 import time
 
-import requests
 
 from SpiderBase import SpiderBase
 from lxml import etree
