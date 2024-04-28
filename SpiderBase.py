@@ -42,6 +42,7 @@ class SpiderBase:
         )
         self.cursor = self.db.cursor()
         self._tmt_client = None
+        print(f"当前是debugmode:{self.debug}")
 
     def req_post(self, url, json=None, params=None, data=None):
         return requests.post(url, json=json, params=params, data=data, headers=self.headers)

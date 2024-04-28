@@ -28,8 +28,13 @@ create table museum_items_of_china_v2
 # where museum = 'njmuseum';
 
 # grant select,update,insert,alter on museum_knowledge_graph.museum_items_of_china_v2 to 'museum_knowledge_graph'@'%';
-select count(*) from museum_items_of_china_v2 where museum='National Museum of Scotland';
+select count(*)/16 from museum_items_of_china_v2 where museum='National Museum of Scotland';
 
 show tables;
 
-select current_user()
+select current_user();
+
+show variables like 'general_log%';
+
+set global general_log = 'ON';
+

@@ -13,7 +13,7 @@ class SpiderNMS(SpiderBase):
 
     def fetch_item(self):
         cnt = 0
-        go_page = 156
+        go_page = 169
         with sync_playwright() as p:
             # browser = p.chromium.launch_persistent_context('~/Library/Application Support/Google/Chrome/Default',
             #                                                headless=True)
@@ -59,6 +59,7 @@ class SpiderNMS(SpiderBase):
                 if len(items) < 16:
                     break
 
+                page.wait_for_selector("#btnSearchNext")
                 page.click("#btnSearchNext")
 
             browser.close()
@@ -111,5 +112,5 @@ class SpiderNMS(SpiderBase):
 
 if __name__ == '__main__':
     spider = SpiderNMS()
-    print(f"当前是debugmode:{spider.debug}")
+
     spider.fetch_item()
