@@ -72,7 +72,7 @@ class SpiderBase:
 
     def save_to_mysql(self, items):
         print("[+] 开始写入数据库")
-        print('\n'.join(str(items)))
+        print('\n'.join([str(i) for i in items]))
         sql = f'''
         INSERT INTO {'museum_items_of_china_v2' if not self.debug else 'test_museum_crawl'}
         (museum, title, era, material, size, description, detail_url, image, download_link, geo)
