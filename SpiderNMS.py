@@ -19,19 +19,22 @@ class SpiderNMS(SpiderBase):
             #                                                headless=True)
             browser = p.chromium.launch(headless=True)
             context = browser.new_context()
-            context.set_default_timeout(30000)
+            context.set_default_timeout(60000)
             page = browser.new_page()
             page.set_extra_http_headers(self.headers)
             page.goto("https://www.nms.ac.uk/explore-our-collections/collection-search-results/")
             page.wait_for_selector("#searchTerm")
             page.fill('input[name="searchTerm"]', 'china')
             page.click('#btnCollectionsSearch')
+            page.wait_for_load_state("networkidle")  # 等待网络空闲
             if go_page:
                 page.wait_for_selector("#page")
                 page.fill('input[name="page"]', str(go_page))
                 page.press("#page", 'Enter')
 
+
             while True and (not self.debug or cnt < 2):
+                page.wait_for_load_state("networkidle")  # 等待网络空闲
                 tree = etree.HTML(page.content())
 
                 rows = tree.xpath('//*[@id="SiteMain"]/div/div[2]/div/div[2]/div[*]')
