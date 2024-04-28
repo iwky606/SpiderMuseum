@@ -4,6 +4,8 @@ from SpiderBase import SpiderBase
 from lxml import etree
 from playwright.sync_api import sync_playwright
 
+TIME_OUT_MS = 60000
+
 
 class SpiderNMS(SpiderBase):
 
@@ -14,58 +16,62 @@ class SpiderNMS(SpiderBase):
     def fetch_item(self):
         cnt = 0
         go_page = 169
-        with sync_playwright() as p:
-            # browser = p.chromium.launch_persistent_context('~/Library/Application Support/Google/Chrome/Default',
-            #                                                headless=True)
-            browser = p.chromium.launch(headless=True)
-            context = browser.new_context()
-            context.set_default_timeout(60000)
-            page = browser.new_page()
-            page.set_extra_http_headers(self.headers)
-            page.goto("https://www.nms.ac.uk/explore-our-collections/collection-search-results/")
-            page.wait_for_selector("#searchTerm")
-            page.fill('input[name="searchTerm"]', 'china')
-            page.click('#btnCollectionsSearch')
-            page.wait_for_load_state("networkidle")  # 等待网络空闲
-            if go_page:
-                page.wait_for_selector("#page")
-                page.fill('input[name="page"]', str(go_page))
-                page.press("#page", 'Enter')
+        time_out_extra = 0
+        try:
+            while True:
+                with sync_playwright() as p:
+                    browser = p.chromium.launch(headless=True)
+                    context = browser.new_context()
+                    context.set_default_timeout(TIME_OUT_MS)
+                    page = browser.new_page()
+                    page.set_extra_http_headers(self.headers)
+                    page.goto("https://www.nms.ac.uk/explore-our-collections/collection-search-results/")
+                    page.wait_for_selector("#searchTerm")
+                    page.fill('input[name="searchTerm"]', 'china')
+                    page.click('#btnCollectionsSearch')
+                    page.wait_for_load_state("networkidle", timeout=TIME_OUT_MS + time_out_extra)  # 等待网络空闲
+                    if go_page:
+                        page.wait_for_selector("#page")
+                        page.fill('input[name="page"]', str(go_page))
+                        page.press("#page", 'Enter')
 
+                        while True and (not self.debug or cnt < 2):
+                            page.wait_for_load_state("networkidle", timeout=TIME_OUT_MS + time_out_extra)  # 等待网络空闲
+                            tree = etree.HTML(page.content())
 
-            while True and (not self.debug or cnt < 2):
-                page.wait_for_load_state("networkidle")  # 等待网络空闲
-                tree = etree.HTML(page.content())
+                            rows = tree.xpath('//*[@id="SiteMain"]/div/div[2]/div/div[2]/div[*]')
+                            items = []
+                            for row in rows:
+                                detail_url = 'https://www.nms.ac.uk' + row.xpath('.//a/@href')[0]
+                                title = row.xpath('.//a[@class="itemTitle"]/text()')[0]
+                                img_urls = row.xpath('.//a[@class="itemThumb"]/img/@src')
+                                img_url = None
+                                if img_urls and len(img_urls) > 0:
+                                    img_url = img_urls[0]
+                                    if img_url == '/images/no_image.gif':
+                                        img_url = self.default_img
+                                    else:
+                                        img_url = 'https://www.nms.ac.uk/' + img_url
 
-                rows = tree.xpath('//*[@id="SiteMain"]/div/div[2]/div/div[2]/div[*]')
-                # page.wait_for_event("load")
-                items = []
-                for row in rows:
-                    detail_url = 'https://www.nms.ac.uk' + row.xpath('.//a/@href')[0]
-                    title = row.xpath('.//a[@class="itemTitle"]/text()')[0]
-                    img_urls = row.xpath('.//a[@class="itemThumb"]/img/@src')
-                    img_url = None
-                    if img_urls and len(img_urls) > 0:
-                        img_url = img_urls[0]
-                        if img_url == '/images/no_image.gif':
-                            img_url = self.default_img
-                        else:
-                            img_url = 'https://www.nms.ac.uk/' + img_url
+                                items.append((detail_url, title, img_url))
 
-                    items.append((detail_url, title, img_url))
+                            self.parse_items(items)
+                            cnt += 1
+                            print(f'处理完{cnt}页')
+                            if len(items) < 16:
+                                break
 
-                self.parse_items(items)
-                cnt += 1
-                # max_page = tree.xpath('//*[@id="resultsAltPagination"]/span[2]/text()')[0]
-                # max_page = int(max_page)
-                print(f'处理完{cnt}页')
-                if len(items) < 16:
-                    break
+                            page.wait_for_selector("#btnSearchNext")
+                            page.click("#btnSearchNext")
+                            go_page += 1
 
-                page.wait_for_selector("#btnSearchNext")
-                page.click("#btnSearchNext")
-
-            browser.close()
+                # 未出现异常且爬取完成，推出循环
+                break
+        except Exception as e:
+            time.sleep(60)
+            time_out_extra += 10000
+            print(f"error is:{e}")
+            print(f"page:{go_page} failed, retrying...")
 
     def parse_items(self, items):
         parsed_items = []
