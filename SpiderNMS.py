@@ -3,6 +3,7 @@ import time
 from SpiderBase import SpiderBase
 from lxml import etree
 from playwright.sync_api import sync_playwright
+import traceback
 
 TIME_OUT_MS = 60000
 
@@ -15,18 +16,23 @@ class SpiderNMS(SpiderBase):
 
     def fetch_item(self):
         cnt = 0
-        go_page = 445
+        go_page = 1178
         time_out_extra = 0
-        try:
-            while True:
+        while True:
+            try:
                 with sync_playwright() as p:
-                    browser = p.chromium.launch(headless=True)
+                    print(f"start crawl page:{go_page}")
+                    browser = p.chromium.launch(headless=False)
                     context = browser.new_context()
                     context.set_default_timeout(TIME_OUT_MS)
                     page = browser.new_page()
                     page.set_extra_http_headers(self.headers)
                     page.goto("https://www.nms.ac.uk/explore-our-collections/collection-search-results/")
                     page.wait_for_selector("#searchTerm")
+                    accept_all_cookies_button = page.query_selector('#ccc-notify-accept')
+                    # 如果该按钮存在,则点击
+                    if accept_all_cookies_button:
+                        accept_all_cookies_button.click()
                     page.fill('input[name="searchTerm"]', 'china')
                     page.click('#btnCollectionsSearch')
                     page.wait_for_load_state("networkidle", timeout=TIME_OUT_MS + time_out_extra)  # 等待网络空闲
@@ -36,6 +42,7 @@ class SpiderNMS(SpiderBase):
                         page.press("#page", 'Enter')
 
                         while True and (not self.debug or cnt < 2):
+                            print(f"now page:{go_page}")
                             page.wait_for_load_state("networkidle", timeout=TIME_OUT_MS + time_out_extra)  # 等待网络空闲
                             tree = etree.HTML(page.content())
 
@@ -61,17 +68,20 @@ class SpiderNMS(SpiderBase):
                             if len(items) < 16:
                                 break
 
-                            page.wait_for_selector("#btnSearchNext")
+                            # page.wait_for_selector("#btnSearchNext")
                             page.click("#btnSearchNext")
                             go_page += 1
+                            print("next page")
 
                 # 未出现异常且爬取完成，推出循环
                 break
-        except Exception as e:
-            time.sleep(60)
-            time_out_extra += 10000
-            print(f"error is:{e}")
-            print(f"page:{go_page} failed, retrying...")
+            except Exception as e:
+                time.sleep(10 + time_out_extra)
+                time_out_extra += 10000
+                print(traceback.format_exc())
+                print(f"page:{go_page} failed, retrying...")
+                self.reload_db()
+                print("reload db success")
 
     def parse_items(self, items):
         parsed_items = []
@@ -97,21 +107,22 @@ class SpiderNMS(SpiderBase):
                         for row in rows:
                             text = row.text
                             if text == 'Description':
-                                parsed_item['description'] = row.xpath('following-sibling::p/text()')[0]
+                                parsed_item['description'] = row.xpath('following-sibling::p/text()')[0][:255]
                             if text == 'Physical description':
-                                parsed_item['material'] = row.xpath('following-sibling::p/text()')[0]
+                                parsed_item['material'] = row.xpath('following-sibling::p/text()')[0][:255]
                             if text == 'Style / Culture':
-                                parsed_item['ear'] = row.xpath('following-sibling::p/text()')[0]
+                                parsed_item['ear'] = row.xpath('following-sibling::p/text()')[0][:255]
                             if text == 'Materials':
-                                parsed_item['material'] = row.xpath('following-sibling::p/text()')[0]
-                    except Exception:
+                                parsed_item['material'] = row.xpath('following-sibling::p/text()')[0][:255]
+                    except Exception as e:
                         pass
                     self.translate_item('en', parsed_item)
                     parsed_items.append(parsed_item)
                     break
-                except Exception:
+                except Exception as e:
+                    print(traceback.format_exc())
                     print(f"url:{url} failed, retrying...")
-                    time.sleep(60)
+                    time.sleep(20)
 
         db_items = []
         for item in parsed_items:

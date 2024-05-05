@@ -36,13 +36,20 @@ def rate_limited(max_per_second):
 class SpiderBase:
 
     def __init__(self):
-        self.db = pymysql.connect(
-            host=MySQLConfig.host, port=MySQLConfig.port, user=MySQLConfig.user, password=MySQLConfig.password,
-            database=MySQLConfig.database, charset='utf8'
-        )
+        self.db = self.get_db()
         self.cursor = self.db.cursor()
         self._tmt_client = None
         print(f"当前是debugmode:{self.debug}")
+
+    def get_db(self):
+        return pymysql.connect(
+            host=MySQLConfig.host, port=MySQLConfig.port, user=MySQLConfig.user, password=MySQLConfig.password,
+            database=MySQLConfig.database, charset='utf8'
+        )
+
+    def reload_db(self):
+        self.db = self.get_db()
+        self.cursor = self.db.cursor()
 
     def req_post(self, url, json=None, params=None, data=None):
         return requests.post(url, json=json, params=params, data=data, headers=self.headers)
@@ -74,10 +81,10 @@ class SpiderBase:
         print("[+] 开始写入数据库")
         print('\n'.join([str(i) for i in items]))
         sql = f'''
-        INSERT INTO {'museum_items_of_china_v2' if not self.debug else 'test_museum_crawl'}
-        (museum, title, era, material, size, description, detail_url, image, download_link, geo)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-        '''
+            INSERT INTO {'museum_items_of_china_v2' if not self.debug else 'test_museum_crawl'}
+            (museum, title, era, material, size, description, detail_url, image, download_link, geo)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            '''
         self.cursor.executemany(sql, items)
         self.db.commit()
         print("[-] 写入完成")
