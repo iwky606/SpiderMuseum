@@ -22,22 +22,3 @@ create table museum_items_of_china_v2
     index (title),
     index (era)
 );
-
-# select count(*)
-# from museum_items_of_china_v2
-# where museum = 'njmuseum';
-
-# grant select,update,insert,alter on museum_knowledge_graph.museum_items_of_china_v2 to 'museum_knowledge_graph'@'%';
-select count(*) from museum_items_of_china_v2 where museum='National Museum of Scotland';
-
-show tables;
-
-select current_user();
-
-show variables like 'general_log%';
-
-set global general_log = 'ON';
-
-SET global log_output = 'table';
-
-select * from mysql.general_log order by event_time desc ;

@@ -16,7 +16,7 @@ class SpiderNMS(SpiderBase):
 
     def fetch_item(self):
         cnt = 0
-        go_page = 1178
+        go_page = 1
         time_out_extra = 0
         while True:
             try:
