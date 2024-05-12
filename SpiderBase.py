@@ -81,7 +81,7 @@ class SpiderBase:
         print("[+] 开始写入数据库")
         print('\n'.join([str(i) for i in items]))
         sql = f'''
-            INSERT INTO {'museum_items_of_china_v2' if not self.debug else 'test_museum_crawl'}
+            INSERT INTO {config.MySQLConfig.table_name if not self.debug else config.MySQLConfig.test_table_name}
             (museum, title, era, material, size, description, detail_url, image, download_link, geo)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             '''

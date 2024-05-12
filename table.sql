@@ -1,11 +1,9 @@
 -- 知识图谱数据库
-create
-    database museum_knowledge_graph;
+create database museum_knowledge_graph;
 
 use museum_knowledge_graph;
 
-
-create table museum_items_of_china_v2
+create table museum_items_of_china_v3
 (
     id            int primary key auto_increment,
     museum        varchar(255),
@@ -22,3 +20,12 @@ create table museum_items_of_china_v2
     index (title),
     index (era)
 );
+
+grant create,select,update,insert on museum_knowledge_graph.* to 'museum_knowledge_graph'@'%';
+flush privileges ;
+
+
+select *
+from museum_items_of_china_v2
+where museum='njmuseum'
+limit 1;
